@@ -1,14 +1,16 @@
 mod health;
-mod users;
+mod users_create;
+mod users_domain;
+mod users_get_by_id;
+mod users_paginate;
 
 use std::sync::Mutex;
 
 use actix_web::{web, App, HttpServer};
 use health::healthz;
-use users::User;
 
 pub struct State {
-    users: Mutex<Vec<User>>,
+    users: Mutex<Vec<users_domain::User>>,
 }
 
 #[actix_web::main]
@@ -21,9 +23,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(state.clone())
             .service(healthz)
-            .service(users::get_user_by_id)
-            .service(users::create_user)
-            .service(users::get_users)
+            .service(users_get_by_id::handle_get_user_by_id)
+            .service(users_create::handle_create_user)
+            .service(users_paginate::handle_paginate_users)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
