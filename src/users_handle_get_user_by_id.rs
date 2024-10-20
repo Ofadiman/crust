@@ -1,7 +1,7 @@
 use actix_web::{get, web, HttpResponse, Responder};
 use serde::Deserialize;
 
-use crate::users_domain;
+use crate::State;
 
 #[derive(Debug, Deserialize)]
 struct Path {
@@ -9,17 +9,17 @@ struct Path {
 }
 
 #[get("/users/{user_id}")]
-pub async fn handle_get_user_by_id(path: web::Path<Path>) -> impl Responder {
-    let user = users_domain::User {
-        id: 1,
-        username: "john".to_owned(),
-        email: "john@example.com".to_owned(),
-        password: "plain text password".to_owned(),
-    };
+pub async fn handle_get_user_by_id(
+    path: web::Path<Path>,
+    data: web::Data<State>,
+) -> impl Responder {
+    let users = data.users.lock().unwrap();
 
-    if path.user_id == 1 {
-        HttpResponse::Ok().json(user)
-    } else {
-        HttpResponse::NotFound().finish()
+    let maybe_user = users.iter().find(|user| user.id == path.user_id);
+
+    if let Some(user) = maybe_user {
+        return HttpResponse::Ok().json(user);
     }
+
+    HttpResponse::NotFound().finish()
 }
