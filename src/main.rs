@@ -16,8 +16,29 @@ pub struct State {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let mut initial_users = Vec::new();
+
+    initial_users.push(users_domain::User {
+        id: 0,
+        username: "john".to_owned(),
+        email: "john@example.com".to_owned(),
+        password: "password".to_owned(),
+    });
+    initial_users.push(users_domain::User {
+        id: 1,
+        username: "mark".to_owned(),
+        email: "mark@example.com".to_owned(),
+        password: "password".to_owned(),
+    });
+    initial_users.push(users_domain::User {
+        id: 2,
+        username: "michael".to_owned(),
+        email: "michael@example.com".to_owned(),
+        password: "password".to_owned(),
+    });
+
     let state = web::Data::new(State {
-        users: Mutex::new(Vec::new()),
+        users: Mutex::new(initial_users),
     });
 
     HttpServer::new(move || {
