@@ -1,9 +1,7 @@
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+mod health;
 
-#[get("/healthz")]
-async fn healthz() -> impl Responder {
-    HttpResponse::Ok().body("ok")
-}
+use actix_web::{App, HttpServer};
+use health::healthz;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
