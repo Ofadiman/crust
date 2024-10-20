@@ -1,0 +1,15 @@
+meta {
+  name: get user by id
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/users/{{user_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  user_id: 1
+}

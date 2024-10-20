@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Crust",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

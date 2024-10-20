@@ -1,0 +1,25 @@
+meta {
+  name: create user
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "{{username}}",
+    "email": "{{email}}",
+    "password": "{{password}}"
+  }
+}
+
+vars:pre-request {
+  username: szymon
+  email: {{username}}@gmail.com
+  password: password
+}
