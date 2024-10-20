@@ -1,8 +1,8 @@
 mod health;
-mod users_create;
 mod users_domain;
-mod users_get_by_id;
-mod users_paginate;
+mod users_handle_create_user;
+mod users_handle_get_user_by_id;
+mod users_handle_paginate_users;
 
 use std::sync::Mutex;
 
@@ -23,9 +23,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(state.clone())
             .service(healthz)
-            .service(users_get_by_id::handle_get_user_by_id)
-            .service(users_create::handle_create_user)
-            .service(users_paginate::handle_paginate_users)
+            .service(users_handle_get_user_by_id::handle_get_user_by_id)
+            .service(users_handle_paginate_users::handle_paginate_users)
+            .service(users_handle_create_user::handle_create_user)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

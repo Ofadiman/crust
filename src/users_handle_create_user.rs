@@ -4,17 +4,14 @@ use serde::{Deserialize, Serialize};
 use crate::{users_domain, State};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct CreateUserDto {
+struct Body {
     username: String,
     email: String,
     password: String,
 }
 
 #[post("/users")]
-pub async fn handle_create_user(
-    body: web::Json<CreateUserDto>,
-    data: web::Data<State>,
-) -> impl Responder {
+pub async fn handle_create_user(body: web::Json<Body>, data: web::Data<State>) -> impl Responder {
     let mut users = data.users.lock().unwrap();
     let new_user = users_domain::User {
         id: users.len() as u32,
