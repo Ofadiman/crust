@@ -1,0 +1,19 @@
+meta {
+  name: custom errors
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/udemy/custom-errors?t={{type}}
+  body: none
+  auth: none
+}
+
+params:query {
+  t: {{type}}
+}
+
+vars:pre-request {
+  type: validation
+}

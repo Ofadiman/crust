@@ -2,12 +2,13 @@ use actix_web::{
     body::BoxBody,
     get,
     http::{
-        header::{HeaderName, HeaderValue},
+        header::{ContentType, HeaderName, HeaderValue},
         StatusCode,
     },
-    HttpResponse, Responder,
+    web, HttpResponse, Responder, ResponseError,
 };
-use serde::Serialize;
+use derive_more::derive::{Display, Error};
+use serde::{Deserialize, Serialize};
 
 #[get("/response-headers")]
 pub async fn response_headers() -> impl Responder {
@@ -50,4 +51,51 @@ pub async fn implement_responder() -> Pet {
     Pet {
         name: "max".to_string(),
     }
+}
+
+#[derive(Display, Error, Debug)]
+pub enum CrustError {
+    #[display("validation error on {field} field")]
+    ValidationError { field: String },
+    #[display("internal error")]
+    InternalError,
+    #[display("defensive error")]
+    DefensiveError,
+}
+
+impl ResponseError for CrustError {
+    fn status_code(&self) -> StatusCode {
+        match *self {
+            Self::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::DefensiveError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::ValidationError { .. } => StatusCode::BAD_REQUEST,
+        }
+    }
+
+    fn error_response(&self) -> HttpResponse<BoxBody> {
+        return HttpResponse::build(self.status_code())
+            .content_type(ContentType::json())
+            .body(self.to_string());
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct Query {
+    t: String,
+}
+
+#[get("/custom-errors")]
+pub async fn custom_errors(query: web::Query<Query>) -> Result<String, actix_web::error::Error> {
+    if query.t == "validation".to_string() {
+        return Err(CrustError::ValidationError {
+            field: "name".to_string(),
+        }
+        .into());
+    }
+
+    if query.t == "defensive".to_string() {
+        return Err(CrustError::DefensiveError.into());
+    }
+
+    return Err(CrustError::InternalError {}.into());
 }
