@@ -380,6 +380,7 @@ dependencies = [
  "actix-web",
  "rand",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -1,4 +1,5 @@
 use actix_web::{
+    body::BoxBody,
     get,
     http::{
         header::{HeaderName, HeaderValue},
@@ -6,6 +7,7 @@ use actix_web::{
     },
     HttpResponse, Responder,
 };
+use serde::Serialize;
 
 #[get("/response-headers")]
 pub async fn response_headers() -> impl Responder {
@@ -23,5 +25,29 @@ pub async fn response_headers() -> impl Responder {
         );
 
         return response;
+    }
+}
+
+#[derive(Serialize)]
+struct Pet {
+    name: String,
+}
+
+impl Responder for Pet {
+    type Body = BoxBody;
+
+    fn respond_to(self, _req: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
+        let s = serde_json::to_string(&self);
+        match s {
+            Ok(value) => HttpResponse::Ok().json(value),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        }
+    }
+}
+
+#[get("/implement-responder")]
+pub async fn implement_responder() -> Pet {
+    Pet {
+        name: "max".to_string(),
     }
 }

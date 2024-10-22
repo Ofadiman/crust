@@ -50,7 +50,11 @@ async fn main() -> std::io::Result<()> {
             .service(users_handle_paginate_users::handle_paginate_users)
             .service(users_handle_create_user::handle_create_user)
             .service(users_handle_update_user_by_id::handle_update_user_by_id)
-            .service(web::scope("/udemy").service(udemy::response_headers))
+            .service(
+                web::scope("/udemy")
+                    .service(udemy::response_headers)
+                    .service(udemy::implement_responder),
+            )
     })
     .bind(("127.0.0.1", 8080))?
     .run()
