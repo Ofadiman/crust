@@ -5,7 +5,8 @@ use actix_web::{
         header::{ContentType, HeaderName, HeaderValue},
         StatusCode,
     },
-    web, HttpResponse, Responder, ResponseError,
+    web::{self, Redirect},
+    HttpResponse, Responder, ResponseError,
 };
 use derive_more::derive::{Display, Error};
 use serde::{Deserialize, Serialize};
@@ -98,4 +99,9 @@ pub async fn custom_errors(query: web::Query<Query>) -> Result<String, actix_web
     }
 
     return Err(CrustError::InternalError {}.into());
+}
+
+#[get("/redirect")]
+pub async fn redirect() -> impl Responder {
+    Redirect::to("/udemy/custom-errors?type=defensive")
 }

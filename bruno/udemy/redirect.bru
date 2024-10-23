@@ -1,0 +1,15 @@
+meta {
+  name: redirect
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/udemy/redirect
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  type: validation
+}

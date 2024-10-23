@@ -54,7 +54,8 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/udemy")
                     .service(udemy::response_headers)
                     .service(udemy::implement_responder)
-                    .service(udemy::custom_errors),
+                    .service(udemy::custom_errors)
+                    .service(udemy::redirect),
             )
     })
     .bind(("127.0.0.1", 8080))?
