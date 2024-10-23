@@ -81,19 +81,19 @@ impl ResponseError for CrustError {
 
 #[derive(Debug, Deserialize)]
 struct Query {
-    t: String,
+    r#type: String,
 }
 
 #[get("/custom-errors")]
 pub async fn custom_errors(query: web::Query<Query>) -> Result<String, actix_web::error::Error> {
-    if query.t == "validation".to_string() {
+    if query.r#type == "validation".to_string() {
         return Err(CrustError::ValidationError {
             field: "name".to_string(),
         }
         .into());
     }
 
-    if query.t == "defensive".to_string() {
+    if query.r#type == "defensive".to_string() {
         return Err(CrustError::DefensiveError.into());
     }
 

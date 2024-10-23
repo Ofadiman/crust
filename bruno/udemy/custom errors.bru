@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{base_url}}/udemy/custom-errors?t={{type}}
+  url: {{base_url}}/udemy/custom-errors?type={{type}}
   body: none
   auth: none
 }
 
 params:query {
-  t: {{type}}
+  type: {{type}}
 }
 
 vars:pre-request {
