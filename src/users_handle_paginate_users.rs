@@ -1,6 +1,6 @@
 use actix_web::{get, web, HttpResponse, Responder};
 
-use crate::State;
+use crate::state::State;
 
 #[get("/users")]
 pub async fn handle_paginate_users(data: web::Data<State>) -> impl Responder {

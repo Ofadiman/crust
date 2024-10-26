@@ -1,7 +1,7 @@
 use actix_web::{patch, web, HttpResponse, Responder};
 use serde::Deserialize;
 
-use crate::State;
+use crate::state::State;
 
 #[derive(Debug, Deserialize)]
 struct Path {

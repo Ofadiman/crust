@@ -1,19 +1,10 @@
-mod health;
-mod udemy;
-mod users_domain;
-mod users_handle_create_user;
-mod users_handle_get_user_by_id;
-mod users_handle_paginate_users;
-mod users_handle_update_user_by_id;
-
 use std::sync::Mutex;
 
 use actix_web::{web, App, HttpServer};
-use health::healthz;
-
-pub struct State {
-    users: Mutex<Vec<users_domain::User>>,
-}
+use crust::{
+    health::healthz, state::State, udemy, users_domain, users_handle_create_user,
+    users_handle_get_user_by_id, users_handle_paginate_users, users_handle_update_user_by_id,
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

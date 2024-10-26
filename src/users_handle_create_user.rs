@@ -1,7 +1,7 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
-use crate::{users_domain, State};
+use crate::{state::State, users_domain};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Body {
