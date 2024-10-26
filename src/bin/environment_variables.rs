@@ -14,15 +14,22 @@ pub struct Settings {
     pub postgres: Postgres,
 }
 
+impl Settings {
+    pub fn new() -> Result<Self, config::ConfigError> {
+        let settings = config::Config::builder()
+            .add_source(config::Environment::default().separator("__"))
+            .build()?
+            .try_deserialize::<Settings>()?;
+
+        return Ok(settings);
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv()?;
 
-    let settings = config::Config::builder()
-        .add_source(config::Environment::default().separator("__"))
-        .build()?
-        .try_deserialize::<Settings>()?;
-
-    println!("{:#?}", settings);
+    let settings = Settings::new();
+    println!("{settings:#?}");
 
     Ok(())
 }
