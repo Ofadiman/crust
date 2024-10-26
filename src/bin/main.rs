@@ -2,12 +2,18 @@ use std::sync::Mutex;
 
 use actix_web::{web, App, HttpServer};
 use crust::{
-    health::healthz, state::State, udemy, users_domain, users_handle_create_user,
-    users_handle_get_user_by_id, users_handle_paginate_users, users_handle_update_user_by_id,
+    health::healthz, settings::Settings, state::State, udemy, users_domain,
+    users_handle_create_user, users_handle_get_user_by_id, users_handle_paginate_users,
+    users_handle_update_user_by_id,
 };
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenvy::dotenv().unwrap();
+
+    let settings = Settings::new();
+    println!("{settings:#?}");
+
     let mut initial_users = Vec::new();
 
     initial_users.push(users_domain::User {

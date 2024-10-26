@@ -1,4 +1,5 @@
 pub mod health;
+pub mod settings;
 pub mod state;
 pub mod udemy;
 pub mod users_domain;
