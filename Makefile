@@ -11,6 +11,10 @@ up:
 	docker compose up --detach
 
 .PHONY:
+stop:
+	docker compose stop
+
+.PHONY:
 logs:
 	docker compose logs api --follow --timestamps
 
