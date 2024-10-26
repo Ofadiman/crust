@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GID: "984"
+        UID: "1000"
+    ports:
+      - 8080:8080
+    command: cargo watch -x run
+    working_dir: /home/docker/crust
+    volumes:
+      - ./:/home/docker/crust
+
+  postgres:
+    image: docker.io/library/postgres:17.0-bookworm@sha256:8d3be35b184e70d81e54cbcbd3df3c0b47f37d06482c0dd1c140db5dbcc6a808
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
