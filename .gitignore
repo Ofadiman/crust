@@ -2,4 +2,4 @@
 /target
 
 # Environment variables
-.env*
+.env
