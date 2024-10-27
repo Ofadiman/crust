@@ -1,3 +1,5 @@
+include .env
+
 .PHONY:
 build:
 	docker compose build
@@ -29,10 +31,10 @@ migrations_new:
 
 .PHONY:
 migrations_run:
-	docker compose exec api sqlx migrate run --database-url postgres://user:password@postgres:5432/postgres
+	docker compose exec api sqlx migrate run --database-url "postgres://${POSTGRES__USERNAME}:${POSTGRES__PASSWORD}@${POSTGRES__HOST}:${POSTGRES__PORT}/${POSTGRES__DATABASE}"
 
 .PHONY:
 migrations_recreate:
-	docker compose exec postgres psql -U user -d postgres -c "drop schema if exists public cascade;"
-	docker compose exec postgres psql -U user -d postgres -c "create schema public;"
+	docker compose exec postgres psql -U "${POSTGRES__USERNAME}" -d "${POSTGRES__DATABASE}" -c "drop schema if exists public cascade;"
+	docker compose exec postgres psql -U "${POSTGRES__USERNAME}" -d "${POSTGRES__DATABASE}" -c "create schema public;"
 	$(MAKE) migrations_run
