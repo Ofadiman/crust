@@ -5,22 +5,24 @@ meta {
 }
 
 patch {
-  url: {{base_url}}/users/{{user_id}}
+  url: {{base_url}}/users/{{id}}
   body: json
   auth: none
 }
 
 body:json {
   {
-    "username": "{{username}}",
+    "first_name": "{{first_name}}",
+    "last_name": "{{last_name}}",
     "email": "{{email}}",
     "password": "{{password}}"
   }
 }
 
 vars:pre-request {
-  user_id: 0
-  username: updated
-  email: {{username}}@example.com
-  password: updated_password
+  id: 6b97593f-8d07-4b86-94a1-c7b55ec6081b
+  first_name: johnny
+  email: {{first_name}}.{{last_name}}@example.com
+  password: new_password
+  last_name: depp
 }
