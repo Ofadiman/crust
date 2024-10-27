@@ -11,7 +11,9 @@ services:
     command: cargo watch -x "run --bin main"
     working_dir: /home/docker/crust
     volumes:
-      - ./:/home/docker/crust
+      - type: bind
+        source: ./
+        target: /home/docker/crust
 
   postgres:
     image: docker.io/library/postgres:17.0-bookworm@sha256:8d3be35b184e70d81e54cbcbd3df3c0b47f37d06482c0dd1c140db5dbcc6a808
@@ -22,7 +24,9 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: user
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
 
 volumes:
   pgdata:
