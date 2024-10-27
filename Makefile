@@ -17,6 +17,10 @@ stop:
 	docker compose stop
 
 .PHONY:
+down: stop
+	docker compose down --volumes --remove-orphans --rmi all
+
+.PHONY:
 logs:
 	docker compose logs api --follow --timestamps
 
