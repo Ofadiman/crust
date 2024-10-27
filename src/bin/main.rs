@@ -90,8 +90,8 @@ async fn main() -> std::io::Result<()> {
             .service(healthz)
             .service(users_handle_get_user_by_id::handle_get_user_by_id)
             .service(users_handle_paginate_users::handle_paginate_users)
-            .service(users_handle_create_user::handle_create_user)
             .service(users_handle_update_user_by_id::handle_update_user_by_id)
+            .service(web::scope("/users").service(users::create::main))
             .service(
                 web::scope("/udemy")
                     .service(udemy::response_headers)

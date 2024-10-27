@@ -12,14 +12,16 @@ post {
 
 body:json {
   {
-    "username": "{{username}}",
+    "first_name": "{{first_name}}",
+    "last_name": "{{last_name}}",
     "email": "{{email}}",
     "password": "{{password}}"
   }
 }
 
 vars:pre-request {
-  username: szymon
-  email: {{username}}@gmail.com
+  first_name: john
+  email: {{first_name}}.{{last_name}}@gmail.com
   password: password
+  last_name: doe
 }
