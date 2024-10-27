@@ -9,6 +9,9 @@ up:
 	docker compose up --detach --remove-orphans --timestamps	
 
 .PHONY:
+restart: stop up
+
+.PHONY:
 stop:
 	docker compose stop
 
