@@ -2,7 +2,7 @@ use std::{sync::Mutex, time::Duration};
 
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use crust::{
-    health::healthz, sessions, settings::Settings, state::State, udemy, users, users_domain,
+    health::healthz, settings::Settings, state::State, udemy, users, users_domain,
     users_handle_paginate_users, users_handle_update_user_by_id,
 };
 use serde::{Deserialize, Serialize};
@@ -31,13 +31,9 @@ async fn sqlx_query(pool: actix_web::web::Data<sqlx::PgPool>) -> impl Responder 
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    users::hello::main();
-    sessions::hello::main();
-
     dotenvy::dotenv().unwrap();
 
     let settings = Settings::new();
-    println!("{settings:#?}");
 
     let pool = PgPoolOptions::new()
         .min_connections(1)
