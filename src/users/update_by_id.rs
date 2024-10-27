@@ -32,25 +32,54 @@ pub async fn main(
     body: actix_web::web::Json<Body>,
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
-    let update_user_by_id_query = sqlx::query_as::<_, Response>(
-        r"
-            update users
-            set first_name = $1,
-                last_name  = $2,
-                email      = $3,
-                password   = $4
-            where users.id = $5
-            returning *;
-        ",
-    )
-    .bind(&body.first_name.clone().or(Some("default".to_string())))
-    .bind(&body.last_name.clone().or(Some("default".to_string())))
-    .bind(&body.email.clone().or(Some("default".to_string())))
-    .bind(&body.password.clone().or(Some("default".to_string())))
-    .bind(&path.id)
-    .fetch_optional(pool.get_ref())
-    .await
-    .unwrap();
+    let mut query_builder = sqlx::QueryBuilder::<sqlx::Postgres>::new("update users set ");
+
+    let mut first = true;
+    if let Some(first_name) = body.first_name.clone() {
+        query_builder.push("first_name = ");
+        query_builder.push_bind(first_name);
+        first = false;
+    }
+
+    if let Some(last_name) = body.last_name.clone() {
+        if !first {
+            query_builder.push(", ");
+        }
+        query_builder.push("last_name = ");
+        query_builder.push_bind(last_name);
+        first = false;
+    }
+
+    if let Some(email) = body.email.clone() {
+        if !first {
+            query_builder.push(", ");
+        }
+        query_builder.push("email = ");
+        query_builder.push_bind(email);
+        first = false;
+    }
+
+    if let Some(password) = body.password.clone() {
+        if !first {
+            query_builder.push(", ");
+        }
+        query_builder.push("password = ");
+        query_builder.push_bind(password);
+    }
+
+    if first {
+        return HttpResponse::UnprocessableEntity().finish();
+    }
+
+    query_builder.push(" where id = ");
+    query_builder.push_bind(path.id);
+    query_builder.push(" returning *");
+
+    let update_user_by_id_query = query_builder
+        .build_query_as::<Response>()
+        .fetch_optional(pool.get_ref())
+        .await
+        .unwrap();
 
     match update_user_by_id_query {
         None => HttpResponse::NotFound().finish(),
