@@ -4,8 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        GID: "984"
-        UID: "1000"
+        UID: "${UID}"
     ports:
       - 8080:8080
     command: cargo watch -x "run --bin main"
