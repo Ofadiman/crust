@@ -2,10 +2,10 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct Postgres {
-    pub user: String,
+    pub username: String,
     pub password: String,
     pub database: String,
-    pub port: String,
+    pub port: u16,
     pub host: String,
 }
 
