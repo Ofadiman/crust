@@ -7,6 +7,7 @@ build:
 .PHONY:
 up:
 	docker compose up --detach --remove-orphans --timestamps	
+	$(MAKE) logs
 
 .PHONY:
 restart: stop up
