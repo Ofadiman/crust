@@ -6,7 +6,7 @@ build:
 
 .PHONY:
 up:
-	docker compose up --detach
+	docker compose up --detach --remove-orphans --timestamps	
 
 .PHONY:
 stop:
