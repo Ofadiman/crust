@@ -2,10 +2,6 @@ include .env
 
 .PHONY:
 build:
-	docker compose build
-
-.PHONY:
-build_no_cache:
 	docker compose build --no-cache
 
 .PHONY:
