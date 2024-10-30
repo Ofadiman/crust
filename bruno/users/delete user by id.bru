@@ -1,0 +1,15 @@
+meta {
+  name: delete user by id
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/users/{{id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  id: daf15cdd-6886-4cfe-8533-17791ab1e091
+}

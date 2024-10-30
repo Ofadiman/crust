@@ -86,6 +86,7 @@ async fn main() -> std::io::Result<()> {
             .service(users_handle_paginate_users::handle_paginate_users)
             .service(
                 web::scope("/users")
+                    .service(users::delete_by_id::main)
                     .service(users::create::main)
                     .service(users::get_by_id::main)
                     .service(users::update_by_id::main),
