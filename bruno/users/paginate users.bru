@@ -1,0 +1,25 @@
+meta {
+  name: paginate users
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/users?offset={{offset}}&limit={{limit}}&order_by={{order_by}}&order_direction={{order_direction}}
+  body: none
+  auth: none
+}
+
+params:query {
+  offset: {{offset}}
+  limit: {{limit}}
+  order_by: {{order_by}}
+  order_direction: {{order_direction}}
+}
+
+vars:pre-request {
+  offset: 0
+  limit: 5
+  order_by: id
+  order_direction: asc
+}

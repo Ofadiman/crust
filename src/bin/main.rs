@@ -55,6 +55,7 @@ async fn main() -> std::io::Result<()> {
             .service(healthz)
             .service(
                 web::scope("/users")
+                    .service(users::paginate::main)
                     .service(users::delete_by_id::main)
                     .service(users::create::main)
                     .service(users::get_by_id::main)
