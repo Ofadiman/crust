@@ -2,13 +2,32 @@ use actix_web::HttpResponse;
 use derive_more::derive::Debug;
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
+use std::fmt::Display;
+use validator::Validate;
 
 #[derive(Deserialize, Debug)]
+enum OrderDirection {
+    #[serde(rename(deserialize = "asc"))]
+    Ascending,
+    #[serde(rename(deserialize = "desc"))]
+    Descending,
+}
+
+impl Display for OrderDirection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Ascending => write!(f, "asc"),
+            Self::Descending => write!(f, "desc"),
+        }
+    }
+}
+
+#[derive(Deserialize, Validate, Debug)]
 struct Query {
     offset: i32,
     limit: i32,
     order_by: String,
-    order_direction: String,
+    order_direction: OrderDirection,
 }
 
 #[derive(Serialize, Debug, FromRow)]
@@ -32,7 +51,7 @@ pub async fn main(
 
     query_builder.push_bind(&query.order_by);
     query_builder.push(" ");
-    query_builder.push(&query.order_direction);
+    query_builder.push(&query.order_direction.to_string());
     query_builder.push(" offset ");
     query_builder.push_bind(&query.offset);
     query_builder.push(" limit ");

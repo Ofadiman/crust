@@ -2,11 +2,10 @@ use actix_web::HttpResponse;
 use derive_more::derive::Debug;
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
-use uuid::Uuid;
 
 #[derive(Deserialize, Debug)]
 struct Path {
-    id: Uuid,
+    id: uuid::Uuid,
 }
 
 #[derive(Serialize, Debug, FromRow)]

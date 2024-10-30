@@ -2,12 +2,17 @@ use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, types::chrono};
 use uuid::Uuid;
+use validator::Validate;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Validate, Deserialize)]
 struct Body {
+    #[validate(length(min = 1, max = 50))]
     first_name: String,
+    #[validate(length(min = 1, max = 50))]
     last_name: String,
+    #[validate(email, length(min = 1, max = 50))]
     email: String,
+    #[validate(length(min = 1, max = 50))]
     password: String,
 }
 
@@ -27,6 +32,11 @@ pub async fn main(
     body: actix_web::web::Json<Body>,
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
+    let validation_result = body.validate();
+    if validation_result.is_err() {
+        return HttpResponse::BadRequest().finish();
+    }
+
     let insert_user_query = sqlx::query_as::<_, Response>(
         r"
             insert into users (first_name, last_name, email, password)
