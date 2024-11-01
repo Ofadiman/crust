@@ -10,13 +10,16 @@ struct Path {
 
 #[derive(Deserialize, Validate, Debug)]
 struct Body {
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     first_name: Option<String>,
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     last_name: Option<String>,
-    #[validate(email, length(min = 1, max = 50))]
+    #[validate(
+        email,
+        length(min = 1, max = 50, message = "minimum or maximum length exceeded")
+    )]
     email: Option<String>,
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     password: Option<String>,
 }
 
@@ -38,8 +41,8 @@ pub async fn main(
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
     let validation_result = body.validate();
-    if validation_result.is_err() {
-        return HttpResponse::BadRequest().finish();
+    if let Err(value) = validation_result {
+        return HttpResponse::BadRequest().json(value);
     }
 
     let mut query_builder = sqlx::QueryBuilder::<sqlx::Postgres>::new("update users set ");

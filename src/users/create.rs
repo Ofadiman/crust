@@ -6,13 +6,16 @@ use validator::Validate;
 
 #[derive(Debug, Validate, Deserialize)]
 struct Body {
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     first_name: String,
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     last_name: String,
-    #[validate(email, length(min = 1, max = 50))]
+    #[validate(
+        email,
+        length(min = 1, max = 50, message = "minimum or maximum length exceeded")
+    )]
     email: String,
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     password: String,
 }
 
@@ -33,8 +36,8 @@ pub async fn main(
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
     let validation_result = body.validate();
-    if validation_result.is_err() {
-        return HttpResponse::BadRequest().finish();
+    if let Err(value) = validation_result {
+        return HttpResponse::BadRequest().json(value);
     }
 
     let insert_user_query = sqlx::query_as::<_, Response>(

@@ -1,32 +1,40 @@
 use actix_web::HttpResponse;
-use derive_more::derive::Debug;
+use derive_more::derive::{Debug, Display};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
-use std::fmt::Display;
 use validator::Validate;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Display)]
 enum OrderDirection {
     #[serde(rename(deserialize = "asc"))]
+    #[display("asc")]
     Ascending,
     #[serde(rename(deserialize = "desc"))]
+    #[display("desc")]
     Descending,
 }
 
-impl Display for OrderDirection {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Ascending => write!(f, "asc"),
-            Self::Descending => write!(f, "desc"),
-        }
-    }
+#[derive(Deserialize, Debug, Display)]
+enum OrderBy {
+    #[serde(rename(deserialize = "first_name"))]
+    #[display("first_name")]
+    FirstName,
+    #[serde(rename(deserialize = "last_name"))]
+    #[display("last_name")]
+    LastName,
+    #[serde(rename(deserialize = "id"))]
+    #[display("id")]
+    Id,
 }
 
-#[derive(Deserialize, Validate, Debug)]
+#[derive(Deserialize, Validate, Debug, Display)]
+#[display(
+    "offset: {offset}, limit: {limit}, order_by: {order_by}, order_direction: {order_direction}"
+)]
 struct Query {
     offset: i32,
     limit: i32,
-    order_by: String,
+    order_by: OrderBy,
     order_direction: OrderDirection,
 }
 
@@ -49,9 +57,9 @@ pub async fn main(
     let mut query_builder =
         sqlx::QueryBuilder::<sqlx::Postgres>::new("select * from users order by ");
 
-    query_builder.push_bind(&query.order_by);
+    query_builder.push_bind(query.order_by.to_string());
     query_builder.push(" ");
-    query_builder.push(&query.order_direction.to_string());
+    query_builder.push(query.order_direction.to_string());
     query_builder.push(" offset ");
     query_builder.push_bind(&query.offset);
     query_builder.push(" limit ");
