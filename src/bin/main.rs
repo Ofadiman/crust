@@ -25,6 +25,11 @@ async fn sqlx_query(pool: actix_web::web::Data<sqlx::PgPool>) -> impl Responder 
     HttpResponse::Ok().json(sqlx_query)
 }
 
+#[derive(Serialize, Debug)]
+struct InvalidJsonError {
+    pub message: String,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().unwrap();
@@ -49,8 +54,41 @@ async fn main() -> std::io::Result<()> {
     let db = web::Data::new(pool);
 
     HttpServer::new(move || {
+        let json_config = web::JsonConfig::default().error_handler(|err, _req| {
+            actix_web::error::InternalError::from_response(
+                "cause: d143e2e1-b81e-43a3-930a-ff3b1f8fa24d",
+                HttpResponse::BadRequest().json(InvalidJsonError {
+                    message: err.to_string(),
+                }),
+            )
+            .into()
+        });
+
+        let path_config = web::PathConfig::default().error_handler(|err, _req| {
+            actix_web::error::InternalError::from_response(
+                "cause: 47c72a82-d593-46c2-aa68-6919e17f16da",
+                HttpResponse::BadRequest().json(InvalidJsonError {
+                    message: err.to_string(),
+                }),
+            )
+            .into()
+        });
+
+        let query_config = web::QueryConfig::default().error_handler(|err, _req| {
+            actix_web::error::InternalError::from_response(
+                "cause: 8521ec1e-4065-4b5f-8c07-41371e66e578",
+                HttpResponse::BadRequest().json(InvalidJsonError {
+                    message: err.to_string(),
+                }),
+            )
+            .into()
+        });
+
         App::new()
             .app_data(db.clone())
+            .app_data(json_config)
+            .app_data(path_config)
+            .app_data(query_config)
             .service(sqlx_query)
             .service(healthz)
             .service(
