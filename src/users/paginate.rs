@@ -1,45 +1,43 @@
+use actix_web::get;
 use actix_web::HttpResponse;
 use derive_more::derive::{Debug, Display};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
+use utoipa::IntoParams;
+use utoipa::ToSchema;
 use validator::Validate;
 
-#[derive(Deserialize, Debug, Display)]
-enum OrderDirection {
-    #[serde(rename(deserialize = "asc"))]
+#[derive(Deserialize, Debug, Display, ToSchema)]
+pub enum PaginateUsersSortDirection {
     #[display("asc")]
-    Ascending,
-    #[serde(rename(deserialize = "desc"))]
+    asc,
     #[display("desc")]
-    Descending,
+    desc,
 }
 
-#[derive(Deserialize, Debug, Display)]
-enum OrderBy {
-    #[serde(rename(deserialize = "first_name"))]
+#[derive(Deserialize, Debug, Display, ToSchema)]
+pub enum PaginateUsersSortField {
     #[display("first_name")]
-    FirstName,
-    #[serde(rename(deserialize = "last_name"))]
+    first_name,
     #[display("last_name")]
-    LastName,
-    #[serde(rename(deserialize = "id"))]
+    last_name,
     #[display("id")]
-    Id,
+    id,
 }
 
-#[derive(Deserialize, Validate, Debug, Display)]
+#[derive(Deserialize, Validate, Debug, Display, IntoParams, ToSchema)]
 #[display(
-    "offset: {offset}, limit: {limit}, order_by: {order_by}, order_direction: {order_direction}"
+    "offset: {offset}, limit: {limit}, sort_field: {sort_field}, sort_direction: {sort_direction}"
 )]
-struct Query {
+struct PaginateUsersQuery {
     offset: i32,
     limit: i32,
-    order_by: OrderBy,
-    order_direction: OrderDirection,
+    sort_field: PaginateUsersSortField,
+    sort_direction: PaginateUsersSortDirection,
 }
 
-#[derive(Serialize, Debug, FromRow)]
-struct Response {
+#[derive(Serialize, Debug, FromRow, ToSchema)]
+struct PaginateUsersResponseBody {
     id: uuid::Uuid,
     first_name: String,
     last_name: String,
@@ -49,17 +47,18 @@ struct Response {
     updated_at: chrono::DateTime<chrono::Utc>,
 }
 
-#[actix_web::get("")]
+#[utoipa::path(tag = "Users", operation_id = "paginate_users", params(PaginateUsersQuery), responses((status = 200, body = PaginateUsersResponseBody, description = "Successfully paginated users.")))]
+#[get("")]
 pub async fn main(
-    query: actix_web::web::Query<Query>,
+    query: actix_web::web::Query<PaginateUsersQuery>,
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
     let mut query_builder =
         sqlx::QueryBuilder::<sqlx::Postgres>::new("select * from users order by ");
 
-    query_builder.push_bind(query.order_by.to_string());
+    query_builder.push_bind(query.sort_field.to_string());
     query_builder.push(" ");
-    query_builder.push(query.order_direction.to_string());
+    query_builder.push(query.sort_direction.to_string());
     query_builder.push(" offset ");
     query_builder.push_bind(&query.offset);
     query_builder.push(" limit ");
@@ -67,7 +66,7 @@ pub async fn main(
     query_builder.push(";");
     println!("{}", query_builder.sql());
 
-    let paginate_users_query: Vec<Response> = query_builder
+    let paginate_users_query: Vec<PaginateUsersResponseBody> = query_builder
         .build_query_as()
         .fetch_all(pool.get_ref())
         .await

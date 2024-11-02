@@ -1,11 +1,13 @@
+use actix_web::post;
 use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, types::chrono};
+use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
-#[derive(Debug, Validate, Deserialize)]
-struct Body {
+#[derive(Debug, Validate, Deserialize, ToSchema)]
+struct CreateUserRequestBody {
     #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     first_name: String,
     #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
@@ -19,8 +21,8 @@ struct Body {
     password: String,
 }
 
-#[derive(Debug, Serialize, FromRow)]
-struct Response {
+#[derive(Debug, Serialize, FromRow, ToSchema)]
+struct CreateUserResponseBody {
     id: Uuid,
     first_name: String,
     last_name: String,
@@ -30,9 +32,10 @@ struct Response {
     updated_at: chrono::DateTime<chrono::Utc>,
 }
 
-#[actix_web::post("")]
+#[utoipa::path(tag = "Users", operation_id = "create_user", responses((status = 201, body = CreateUserResponseBody)))]
+#[post("")]
 pub async fn main(
-    body: actix_web::web::Json<Body>,
+    body: actix_web::web::Json<CreateUserRequestBody>,
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
     let validation_result = body.validate();
@@ -40,7 +43,7 @@ pub async fn main(
         return HttpResponse::BadRequest().json(value);
     }
 
-    let insert_user_query = sqlx::query_as::<_, Response>(
+    let insert_user_query = sqlx::query_as::<_, CreateUserResponseBody>(
         r"
             insert into users (first_name, last_name, email, password)
             values ($1, $2, $3, $4)

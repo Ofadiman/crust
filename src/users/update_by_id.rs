@@ -1,15 +1,16 @@
-use actix_web::HttpResponse;
+use actix_web::{patch, HttpResponse};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
+use utoipa::{IntoParams, ToSchema};
 use validator::Validate;
 
-#[derive(Debug, Deserialize)]
-struct Path {
+#[derive(Debug, Deserialize, IntoParams)]
+struct UpdateUserByIdPath {
     id: uuid::Uuid,
 }
 
-#[derive(Deserialize, Validate, Debug)]
-struct Body {
+#[derive(Deserialize, Validate, Debug, ToSchema)]
+struct UpdateUserByIdRequestBody {
     #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
     first_name: Option<String>,
     #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
@@ -23,8 +24,8 @@ struct Body {
     password: Option<String>,
 }
 
-#[derive(Debug, Serialize, FromRow)]
-struct Response {
+#[derive(Debug, Serialize, FromRow, ToSchema)]
+struct UpdateUserByIdResponseBody {
     id: uuid::Uuid,
     first_name: String,
     last_name: String,
@@ -34,10 +35,11 @@ struct Response {
     updated_at: chrono::DateTime<chrono::Utc>,
 }
 
-#[actix_web::patch("/{id}")]
+#[utoipa::path(tag = "Users", operation_id = "update_user_by_id", responses((status = 200, body = UpdateUserByIdResponseBody, description = "Successfully updated user."), (status = 404, description = "User not found.")))]
+#[patch("/{id}")]
 pub async fn main(
-    path: actix_web::web::Path<Path>,
-    body: actix_web::web::Json<Body>,
+    path: actix_web::web::Path<UpdateUserByIdPath>,
+    body: actix_web::web::Json<UpdateUserByIdRequestBody>,
     pool: actix_web::web::Data<sqlx::PgPool>,
 ) -> impl actix_web::Responder {
     let validation_result = body.validate();
@@ -89,7 +91,7 @@ pub async fn main(
     query_builder.push(" returning *");
 
     let update_user_by_id_query = query_builder
-        .build_query_as::<Response>()
+        .build_query_as::<UpdateUserByIdResponseBody>()
         .fetch_optional(pool.get_ref())
         .await
         .unwrap();
