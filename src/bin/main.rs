@@ -1,13 +1,9 @@
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpServer};
 use crust::{health::healthz, settings::Settings, users};
-use serde::{Deserialize, Serialize};
-use sqlx::{
-    postgres::{PgConnectOptions, PgPoolOptions},
-    prelude::FromRow,
-    types::Uuid,
-};
+use serde::Serialize;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use std::time::Duration;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::OpenApi;
 use utoipa_actix_web::{scope, AppExt};
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -16,29 +12,10 @@ use utoipa_swagger_ui::SwaggerUi;
     tags(
         (name = "Users", description = "Endpoints used to manage user resource."),
         (name = "Health", description = "Endpoints used to monitor application health."),
-        (name = "Examples", description = "Endpoints used to showcase rust features.")
     ),
     components(schemas(users::paginate::PaginateUsersSortDirection, users::paginate::PaginateUsersSortField))
 )]
 pub struct ApiDoc;
-
-#[derive(Debug, Deserialize, Serialize, FromRow, ToSchema)]
-struct SqlxQuery {
-    id: i64,
-    uuid: Uuid,
-}
-
-#[utoipa::path(tag = "Examples", responses((status = 200, body = SqlxQuery)))]
-#[get("/sqlx-query")]
-async fn sqlx_query(pool: actix_web::web::Data<sqlx::PgPool>) -> impl Responder {
-    let sqlx_query =
-        sqlx::query_as::<_, SqlxQuery>("select 1::bigint as id, gen_random_uuid() as uuid;")
-            .fetch_optional(pool.get_ref())
-            .await
-            .unwrap();
-
-    HttpResponse::Ok().json(sqlx_query)
-}
 
 #[derive(Serialize, Debug)]
 struct InvalidJsonError {
@@ -106,7 +83,6 @@ async fn main() -> std::io::Result<()> {
             .app_data(json_config)
             .app_data(path_config)
             .app_data(query_config)
-            .service(sqlx_query)
             .service(healthz)
             .service(
                 scope::scope("/users")

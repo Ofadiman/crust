@@ -1,6 +1,5 @@
 pub mod health;
 pub mod settings;
-pub mod udemy;
 pub mod users {
     pub mod create;
     pub mod delete_by_id;
