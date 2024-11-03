@@ -1,6 +1,6 @@
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-    Argon2, Params,
+    Argon2, Params, PasswordHash, PasswordVerifier,
 };
 
 #[derive(Debug, Clone)]
@@ -28,5 +28,18 @@ impl PasswordManager<'_> {
             .to_string();
 
         hash
+    }
+
+    pub fn compare(&self, password: &String, pepper: &String, password_hash: &String) -> bool {
+        let parsed_hash = PasswordHash::new(password_hash).unwrap();
+        let result = self
+            .argon2
+            .verify_password(format!("{password}{pepper}").as_bytes(), &parsed_hash);
+
+        if result.is_ok() {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

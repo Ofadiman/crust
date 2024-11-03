@@ -94,6 +94,7 @@ async fn main() -> std::io::Result<()> {
                     .service(users::delete_by_id::main)
                     .service(users::get_by_id::main)
                     .service(users::update_by_id::main)
+                    .service(users::login::main)
                     .service(users::create::main),
             )
             .split_for_parts();
