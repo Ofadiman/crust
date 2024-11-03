@@ -10,8 +10,14 @@ pub struct Postgres {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct Passwods {
+    pub pepper: String,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct Settings {
     pub postgres: Postgres,
+    pub passwords: Passwods,
 }
 
 impl Settings {

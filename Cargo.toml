@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.9.0"
+argon2 = "0.5.3"
 chrono = { version = "0.4.38", features = ["serde"] }
 config = "0.14.1"
 derive_more = { version = "1.0.0", features = ["full"] }

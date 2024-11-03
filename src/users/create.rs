@@ -6,6 +6,10 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
+use crate::settings;
+use crate::utils;
+use crate::utils::passwords::PasswordManager;
+
 #[derive(Debug, Validate, Deserialize, ToSchema)]
 struct CreateUserRequestBody {
     #[validate(length(min = 1, max = 50, message = "minimum or maximum length exceeded"))]
@@ -27,7 +31,6 @@ struct CreateUserResponseBody {
     first_name: String,
     last_name: String,
     email: String,
-    password: String,
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
 }
@@ -37,11 +40,15 @@ struct CreateUserResponseBody {
 pub async fn main(
     body: actix_web::web::Json<CreateUserRequestBody>,
     pool: actix_web::web::Data<sqlx::PgPool>,
+    password_manager: actix_web::web::Data<utils::passwords::PasswordManager<'_>>,
+    settings: actix_web::web::Data<settings::Settings>,
 ) -> impl actix_web::Responder {
     let validation_result = body.validate();
     if let Err(value) = validation_result {
         return HttpResponse::BadRequest().json(value);
     }
+
+    let hashed_password = password_manager.hash(&body.password, &settings.passwords.pepper);
 
     let insert_user_query = sqlx::query_as::<_, CreateUserResponseBody>(
         r"
@@ -53,7 +60,7 @@ pub async fn main(
     .bind(&body.first_name)
     .bind(&body.last_name)
     .bind(&body.email)
-    .bind(&body.password)
+    .bind(hashed_password)
     .fetch_optional(pool.get_ref())
     .await
     .unwrap();

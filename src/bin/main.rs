@@ -1,5 +1,5 @@
 use actix_web::{web, App, HttpResponse, HttpServer};
-use crust::{health::healthz, settings::Settings, users};
+use crust::{health::healthz, settings::Settings, users, utils};
 use serde::Serialize;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use std::time::Duration;
@@ -26,7 +26,9 @@ struct InvalidJsonError {
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().unwrap();
 
-    let settings = Settings::new();
+    let settings = web::Data::new(Settings::new());
+
+    let password_manager = web::Data::new(utils::passwords::PasswordManager::new());
 
     let pool = PgPoolOptions::new()
         .min_connections(1)
@@ -80,6 +82,8 @@ async fn main() -> std::io::Result<()> {
             .into_utoipa_app()
             .openapi(ApiDoc::openapi())
             .app_data(db.clone())
+            .app_data(password_manager.clone())
+            .app_data(settings.clone())
             .app_data(json_config)
             .app_data(path_config)
             .app_data(query_config)
