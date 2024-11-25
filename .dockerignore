@@ -1,0 +1,13 @@
+# Files
+.dockerignore
+.envrc
+.gitignore
+Dockerfile
+Makefile
+docker-compose.yml
+readme.md
+
+# Directories
+bruno
+target
+tmp

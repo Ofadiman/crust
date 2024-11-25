@@ -6,23 +6,11 @@ build:
 
 .PHONY:
 up:
-	docker compose up --detach --remove-orphans --timestamps	
-	$(MAKE) logs
+	docker compose up --watch --remove-orphans --timestamps	
 
 .PHONY:
-restart: stop up
-
-.PHONY:
-stop:
-	docker compose stop
-
-.PHONY:
-down: stop
+down:
 	docker compose down --volumes --remove-orphans --rmi all
-
-.PHONY:
-logs:
-	docker compose logs api --follow --timestamps
 
 .PHONY:
 bash:

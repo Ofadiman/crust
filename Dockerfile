@@ -6,6 +6,8 @@ RUN useradd --home /home/docker --create-home --shell /bin/bash --uid ${UID} doc
 
 USER docker
 
+COPY --chown=docker:docker . /home/docker/crust
+
 RUN mkdir -p /home/docker/crust/target
 
 VOLUME [ "/home/docker/crust/target" ]
